@@ -45,7 +45,18 @@ http.createServer((req,res)=>{
             });
 
         }
-        /*else if(path.startsWith("/get_lobby")){//get a list of all users that are currently waiting to be picked up by another user.
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        else if(path.startsWith("/get_lobby")){//get a list of all users that are currently waiting to be picked up by another user.
             st.query("UPDATE users SET lobby=? WHERE username=? AND NOT lobby=-1", [Date.now(),username], (result,err)=>{
                 if(err){
                     //not now
@@ -63,7 +74,18 @@ http.createServer((req,res)=>{
                 });
 
             });
-        }else if(path.startsWith("/start_game")){//when the user picks up another user from the lobby to initiate a game.
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //when the user picks up another user from the lobby to initiate a game.
+        else if(path.startsWith("/start_game")){
             let partner = q.query.partner;
             if(!partner) return;
             st.query("UPDATE users SET lobby = -1 WHERE username IN (?,?) AND ?-lobby<3000",[username, partner,Date.now()], (result, err)=>{
@@ -89,7 +111,20 @@ http.createServer((req,res)=>{
         
             });
 
-        }else if(path.startsWith("/leave_game")){
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        else if(path.startsWith("/leave_game")){
             //how to find my partner ??
             //go over all games that I am either player1 or player2.
             //from those games, if I am i.e player1, then player2 is my partner.
@@ -144,7 +179,17 @@ http.createServer((req,res)=>{
                 }
             });
             
-        }else if(path.startsWith('/get_game_id')){
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        else if(path.startsWith('/get_game_id')){
                 st.query('SELECT id, player02, player01  FROM games WHERE (player01=? OR player02=?) AND active=1', [username, username], (result,err)=>{
                     if(err){
                         res.end('');
@@ -164,7 +209,19 @@ http.createServer((req,res)=>{
                         res.end("-1");
                     }
                 });
-            }else if(path.startsWith('/get_game_status')){
+            }
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            else if(path.startsWith('/get_game_status')){
                 let gameId = q.query.id;
                 if(!gameId) return;
                     // Parse the request body
@@ -201,10 +258,19 @@ http.createServer((req,res)=>{
                                 }
                             });
                         });
-                    });
-                
-                
+                    }); 
             }
+
+
+
+
+
+
+
+
+
+
+            
             /*else if (path.startsWith("/player_action")) {
                 let action = q.query.action;
                 let gameId = q.query.game_id;

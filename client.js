@@ -50,68 +50,64 @@ function removeAllChildNodes(node) {
   }
   
 
-// This function is responsible for fetching the users in the lobby
-function getLobby() {    
-    // Send a GET request to the lobby endpoint
-    sendHttpGetRequest('api/get_lobby?username=' + username + '&password=' + password, 
-    (response)=> {
-      // Parse the result to get the list of users in the lobby
+
+
+
+
+  function getLobby() {
+    sendHttpGetRequest('api/get_lobby?username=' + username + '&password=' + password, (response) => {
       const usersInLobby = JSON.parse(response);
-      // Remove all child nodes from the div that displays the users in the lobby
       removeAllChildNodes(divUsersInLobby);
-      // Flag to indicate if the current user exists in the lobby list
       let existsInList = false;
-      // Loop through the users in the lobby
+  
       for (let i = 0; i < usersInLobby.length; i++) {
-        // Skip the current user
         if (usersInLobby[i].username == username) {
           existsInList = true;
           continue;
         }
-      
+  
         const p = document.createElement('p');
         p.innerHTML = usersInLobby[i].username;
-        // Add the p element as a child node to the div that displays the users in the lobby
         divUsersInLobby.appendChild(p);
-        // Attach an onclick event listener to the p element to start a game with the user
-        p.onclick = (event)=> {
+  
+        p.onclick = (event) => {
           const partner = event.target.innerHTML;
-          sendHttpGetRequest('api/start_game?username=' + username + '&password=' + password + '&partner=' + partner,
-          (response)=> {
+          sendHttpGetRequest('api/start_game?username=' + username + '&password=' + password + '&partner=' + partner, (response) => {
             if (response == 'error') {
               alert('Error, please try again.');
             }
           });
-
         };
-
       }
-      // If the current user exists in the lobby list, recursively call the getLobby function after a timeout of 500ms
+  
       if (existsInList) {
         setTimeout(getLobby, 600);
       } else {
-        // If the current user does not exist in the lobby list, fetch the game ID for the current user
-        // Send a GET request to the game ID endpoint
-        sendHttpGetRequest('api/get_game_id?username=' + username + '&password=' + password,
-        (response)=> {
-          console.log('Client received response:', response);
-          if (response) {
-            // Parse the response and set the game ID for the current user
-            // gameId = parseInt(response);
-            let res = JSON.parse(response);
-            console.log('Parsed response:', res);
-            // Update the label to display the game ID for the current user
-            lblGameId.innerHTML = 'Your game id is: ' + res.id;
-            playerOne.innerHTML= "player01: " + res.player01;
-            playerTwo.innerHTML= "player02: " + res.player02;
-            show(divGame);
-          }
-        });
+        getGameId();
       }
     });
   }
   
-    
+  function getGameId() {
+    sendHttpGetRequest('api/get_game_id?username=' + username + '&password=' + password, (response) => {
+      if(response){
+      const res = JSON.parse(response);
+  
+      lblGameId.innerHTML = 'Your game id is: ' + res.id;
+      playerOne.innerHTML = "player01: " + res.player01;
+      playerTwo.innerHTML = "player02: " + res.player02;
+      show(divGame);
+
+      }
+    });
+  }
+  
+
+
+
+
+
+
     
 function btnLoginSignupClicked(loginOrSignup) {
     username = txtUsername.value;
