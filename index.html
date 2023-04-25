@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <script src="./client_tools.js"></script>
+        <script src="./client.js"></script>
+        <script src="./Blackjack.js"></script>
+    </head>
+    <body onload="init();initialize()">
+    <h1>Let's Play BlackJack - 21</h1>  
+    <div id="divLogin" class="shown">
+        <h2>Login</h2>
+        <p>Username: <input class="lock" type="text" id="txtUsername" /></p>
+        <p>Password: <input class="lock" type="password" id="txtPassword" /></p>
+        <p><button class="lock" onclick="btnLoginSignupClicked('login')">login</button><button class="lock" onclick="btnLoginSignupClicked('signup')">signup</button></p>
+        <p id="pLoginMessage"></p>
+    </div>
+    <div id="divLobby" class="hidden">
+        <h2>Lobby players</h2>
+        <div id="divUsersInLobby"></div>
+    </div>
+    <div id="divGame" class="hidden">
+        <h2>Gameplay</h2>
+        <p id="lblGameId"></p>
+        <p><button class="lock" id="btnLeaveGame" onclick="btnLeaveGameClicked()">leave game</button></p>
+            <br>
+        <div class="board-wrapper">
+            <h3>Dealer: <span id="dlrSum"></span></h3>
+            <div class="divCards" id="dlrCards">
+                <img id="hidden" src="./img_cards/BACK.png">
+            </div>
+            <div class="cards-wrapper">
+                <div class="players-wrap">
+                    <h3><span id="player1"></span> <span id="p01Sum"></span></h3>
+                    <div class="divCards" id="p01Cards"> 
+                        <img id="hidden" src="./img_cards/BACK.png">            
+                    </div>
+                </div>
+                <div class="players-wrap">
+                    <h3><span id="player2"></span> <span id="p02Sum"></span></h3>
+              <div class="divCards" id="p02Cards"> 
+                <img id="hidden" src="./img_cards/BACK.png"> 
+                </div>
+            
+            </div>
+            
+            </div>     
+            <br>
+            <button class="lock" id="btnHit" onclick="btnHitClicked()">Hit</button>
+            <button class="lock" id="btnStand" onclick="btnStandClicked()">Stand</button>
+            <p id="pResults"></p>
+        </div>
+    </div>
+    </body>
+</html>

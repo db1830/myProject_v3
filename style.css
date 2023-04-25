@@ -1,0 +1,41 @@
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+h1, h2{
+    text-align: center;
+}
+
+#divLogin{
+    text-align: center;
+}
+
+
+.divCards img{
+    height: 175px;
+    width: 125px;
+    margin: 1px;
+}
+
+.hidden{
+    display: none;
+}
+.shown{
+    display: block;
+    
+}
+
+.cards-wrapper{
+    display: flex;
+    justify-content: space-between;
+}
+
+.players-wrap{
+    width: 600px;
+}
+
+#player1, #player2{
+
+}
