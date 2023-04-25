@@ -77,10 +77,8 @@ function gamePlay(){
         player02Hand.push(card);
     }
     sendHttpPostRequest({ dealerHand, player01Hand, player02Hand }, (response) => {
-        console.log(response);
-        console.log(JSON.parse(response));
         let gameStatus = JSON.parse(response);
-        console.log(gameStatus);
+        
         // update the UI with the new game state
     });
 }

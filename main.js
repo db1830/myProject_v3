@@ -63,7 +63,7 @@ http.createServer((req,res)=>{
 
                     return;
                 }
-                st.query("SELECT username FROM users WHERE ? - lobby < 3000",[Date.now()], (result, err)=>{
+                st.query("SELECT username FROM users WHERE (? - lobby) < 3000",[Date.now()], (result, err)=>{
                     if(err){
                         //not now
     
@@ -87,8 +87,11 @@ http.createServer((req,res)=>{
         //when the user picks up another user from the lobby to initiate a game.
         else if(path.startsWith("/start_game")){
             let partner = q.query.partner;
-            if(!partner) return;
-            st.query("UPDATE users SET lobby = -1 WHERE username IN (?,?) AND ?-lobby<3000",[username, partner,Date.now()], (result, err)=>{
+            if(!partner){
+                console.log("!not")
+                return;
+            }
+            st.query("UPDATE users SET lobby = -1 WHERE username IN (?,?) AND (? - lobby) < 3000",[username, partner,Date.now()], (result, err)=>{
                 if(err){
                     //not now
         
@@ -96,13 +99,18 @@ http.createServer((req,res)=>{
                 }
                 if(result.affectedRows == 2){
                     st.query("INSERT INTO games(player01,player02) VALUES (?,?)", [username, partner], (result, err)=>{
+                        console.log("result2", result,err)
+
                         if(err){
                             //not now
-        
-                            return;
+                            res.writeHead(500, {'Content-Type':'text/plain'});
+                            res.end("error:" + err.toString());
+                            
                         }
+
                             res.writeHead(200, {'Content-Type':'text/plain'});
                             res.end("ok");
+                            
                     });
                 }else{
                     res.writeHead(200, {'Content-Type':'text/plain'});
@@ -190,7 +198,7 @@ http.createServer((req,res)=>{
         
         
         else if(path.startsWith('/get_game_id')){
-                st.query('SELECT id, player02, player01  FROM games WHERE (player01=? OR player02=?) AND active=1', [username, username], (result,err)=>{
+                st.query('SELECT id, player01, player02 FROM games WHERE (player01=? OR player02=?) AND active=1', [username, username], (result,err)=>{
                     if(err){
                         res.end('');
                         return;
