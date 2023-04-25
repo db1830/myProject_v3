@@ -54,6 +54,7 @@ function gamePlay(){
         dlrAceCount += checkingAce(card);
         document.getElementById("dlrCards").append(cardImg);
         dealerHand.push(card);
+        console.log("test");
     }    
 
     // Deal two cards to each player
