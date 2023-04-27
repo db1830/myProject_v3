@@ -1,6 +1,7 @@
 const http = require('http');
 const url = require('url');
 const st = require('./server_tools');
+const { log } = require('console');
 
 
 
@@ -63,7 +64,7 @@ http.createServer((req,res)=>{
 
                     return;
                 }
-                st.query("SELECT username FROM users WHERE (? - lobby) < 3000",[Date.now()], (result, err)=>{
+                st.query("SELECT username FROM users WHERE ? - lobby < 3000",[Date.now()], (result, err)=>{
                     if(err){
                         //not now
     
@@ -77,21 +78,13 @@ http.createServer((req,res)=>{
         }
         
         
-        
-        
-        
-        
-        
-        
-        
         //when the user picks up another user from the lobby to initiate a game.
         else if(path.startsWith("/start_game")){
             let partner = q.query.partner;
             if(!partner){
-                console.log("!not")
                 return;
             }
-            st.query("UPDATE users SET lobby = -1 WHERE username IN (?,?) AND (? - lobby) < 3000",[username, partner,Date.now()], (result, err)=>{
+            st.query("UPDATE users SET lobby = -1 WHERE username IN (?,?) AND ? - lobby < 3000",[username, partner,Date.now()], (result, err)=>{
                 if(err){
                     //not now
         
@@ -219,37 +212,38 @@ http.createServer((req,res)=>{
                 });
             }
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             else if(path.startsWith('/get_game_status')){
                 let gameId = q.query.id;
-                if(!gameId) return;
+                if(!gameId) 
+                {
+                return;
+                }
+                try {
                     // Parse the request body
                     let body = [];
                     req.on('data', chunk => {
                         body.push(chunk);
                     }).on('end', () => {
                         body = Buffer.concat(body).toString();
-                        let gameState = JSON.parse(body);
-                        // Store the game state in the database
-
-                        st.query('UPDATE games SET game_state=? WHERE id=? AND (player01=? OR player02=?)', [JSON.stringify(gameState), gameId, username, username], (result, err) => {
-                            if (err) {
-                                res.end("");
-                                return;
-                            }
-                            
-                            // Return the updated game status
-                            st.query('SELECT player01, player02, active, game_state FROM games WHERE id=? AND (player01=? OR player02=?)', [gameId, username, username], (result, err) => {
-                                if (err) {
+                        const handle = JSON.parse(body)
+                        // console.log(body);
+                        // console.log("dealer: "+ body.dealerHand);
+                        // console.log("player01: "+ body.player01Hand);
+                        // console.log("player01 from handle",handle.player01Hand)
+                        // console.log("player02: w"+ body.player02Hand);
+                        
+                        // First query for init time (dealer and two players)
+                        if(body.dealerHand){
+                            st.query('UPDATE games SET dealer_hand=?, player01_hand=?, player02_hand=? WHERE id=? AND (player01=? OR player02=?)',[body.dealerHand, body.player01Hand, body.player02Hand, gameId, username, username], (result, err)=>{
+                                if(err){
+                                    res.end("");
+                                    return;
+                                }
+                            });
+                        }else{
+                            // Second query for only 2 players
+                            st.query('UPDATE games SET player01_hand=?, player02_hand=? WHERE id=? AND (player01=? OR player02=?)',[body.player01Hand, body.player02Hand, gameId, username, username], (result, err)=>{
+                                if(err){
                                     res.end("");
                                     return;
                                 }
@@ -265,9 +259,15 @@ http.createServer((req,res)=>{
                                     res.end(JSON.stringify(gameStatus));
                                 }
                             });
-                        });
+                        }  
                     }); 
-            }
+                } catch(error){
+                    console.error("Error processing API request: ", error);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: "server error" }));
+                }
+             }
+            
 
 
 
