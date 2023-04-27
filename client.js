@@ -81,7 +81,7 @@ function removeAllChildNodes(node) {
       }
   
       if (existsInList) {
-        setTimeout(getLobby, 600);
+        setTimeout(getLobby, 800);
       } else {
         getGameId();
       }
@@ -92,13 +92,16 @@ function removeAllChildNodes(node) {
     sendHttpGetRequest('api/get_game_id?username=' + username + '&password=' + password, (response) => {
       if(response){
       const res = JSON.parse(response);
-  
+      
+      gameId=res.id;
       lblGameId.innerHTML = 'Your game id is: ' + res.id;
       playerOne.innerHTML = "player01: " + res.player01;
       playerTwo.innerHTML = "player02: " + res.player02;
       show(divGame);
-
+      // getGameStatus()
+      gamePlay();
       }
+      
     });
   }
   
@@ -183,25 +186,24 @@ function btnLeaveGameClicked(){
 
 
 
-function getGameStatus(){
-  sendHttpGetRequest('api/get_game_status?username='+username+'&password='+password+'&id='+gameId , (response)=>{
-    gameStatus = JSON.parse(response);
-    if(gameStatus.active){
+// function getGameStatus(){
+//   sendHttpGetRequest('api/get_game_status?username='+username+'&password='+password+'&id='+gameId , (response)=>{
+//     gameStatus = JSON.parse(response);
+//     if(gameStatus.active){
 
 
-      setTimeout(getGameStatus, 600);
-        return;
+//       setTimeout(getGameStatus, 600);
+//         return;
         
         
-    }else{
-      show(divLobby);
-      getLobby();
-    }
-
+//     }else{
+//       show(divLobby);
+//       getLobby();
+//     }
     
-  });
+//   });
   
-}
+// }
 
 
 

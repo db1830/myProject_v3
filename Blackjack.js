@@ -54,7 +54,6 @@ function gamePlay(){
         dlrAceCount += checkingAce(card);
         document.getElementById("dlrCards").append(cardImg);
         dealerHand.push(card);
-        console.log("test");
     }    
 
     // Deal two cards to each player
@@ -62,7 +61,7 @@ function gamePlay(){
         let cardImg = document.createElement("img");
         let card = deck.pop();
         cardImg.src = "./img_cards/" + card + ".png";
-        p01Sum += getValue(card);
+        p01Sum += getValue(card);   
         p01AceCount += checkingAce(card);
         document.getElementById("p01Cards").append(cardImg);
         player01Hand.push(card);
@@ -77,9 +76,9 @@ function gamePlay(){
         document.getElementById("p02Cards").append(cardImg);
         player02Hand.push(card);
     }
-    sendHttpPostRequest({ dealerHand, player01Hand, player02Hand }, (response) => {
-        let gameStatus = JSON.parse(response);
+    sendHttpPostRequest({ dealerHand, player01Hand, player02Hand },gameId, (response) => {
         
+    
         // update the UI with the new game state
     });
 }
@@ -99,6 +98,7 @@ function btnHitClicked() {
         p01Sum += getValue(card);
         p01AceCount += checkingAce(card);
         document.getElementById("p01Cards").append(cardImg);
+        player01Hand.push(card);
         if (reducedAce(p01Sum, p01AceCount) > 21) {
             btnHit = false;
         }
@@ -107,6 +107,7 @@ function btnHitClicked() {
         p02Sum += getValue(card);
         p02AceCount += checkingAce(card);
         document.getElementById("p02Cards").append(cardImg);
+        player02Hand.push(card);
         if (reducedAce(p02Sum, p02AceCount) > 21) {
             btnHit = false;
         }
@@ -114,8 +115,9 @@ function btnHitClicked() {
 
     }
     
+    console.log("playerHandes: ",player01Hand, player02Hand);
+    sendHttpPostRequest({ player01Hand, player02Hand },gameId, (response) => {
 
-    sendHttpGetRequest("/api/player_action?action=hit&game_id=" + gameId, (response) => {
         if (response) {
             
         } else {

@@ -36,6 +36,12 @@ the player can choose to hit (receive another card) or stand (keep their current
 
 
 
+
+
+
+
+
+
 sec.to do list:
 
 A. סידור הקוד מחדש-
@@ -47,3 +53,14 @@ C. שימוש בגיטהאב קודם לכל
 
 D. 'שימוש בלוקאלסטורג
 
+To Do List:
+
+
+1. Create 2 queries that saving the players and the dealer hands.
+* check route params (have dealar hand or not)
+* first query for init time (dealer and two players).
+* second query for only 2  players.
+
+2. use try and catch for api requests.
+
+3. clean the code!

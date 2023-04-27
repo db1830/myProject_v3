@@ -16,7 +16,7 @@ function sendHttpGetRequest(url, callback){
 // and 'send()' passes the 'GET' type request
 
 
-function sendHttpPostRequest(body, callback){
+function sendHttpPostRequest(body,gameId, callback){
     let httpRequest = new XMLHttpRequest();
     httpRequest.onreadystatechange = ()=>{
         if(httpRequest.readyState == 4){
@@ -27,6 +27,6 @@ function sendHttpPostRequest(body, callback){
      };
      httpRequest.open("POST", 'api/get_game_status?username='+username+'&password='+password+'&id='+gameId , true);
      httpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-     return httpRequest.send(JSON.stringify(body));
+     httpRequest.send(JSON.stringify(body));
      
 }

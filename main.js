@@ -45,7 +45,7 @@ http.createServer((req,res)=>{
                 res.end(isValid ? "ok" : "invalid");
             });
 
-        }
+          
         
         
         
@@ -56,8 +56,8 @@ http.createServer((req,res)=>{
         
         
         
-        
-        else if(path.startsWith("/get_lobby")){//get a list of all users that are currently waiting to be picked up by another user.
+        //get a list of all users that are currently waiting to be picked up by another user.
+        } else if(path.startsWith("/get_lobby")){
             st.query("UPDATE users SET lobby=? WHERE username=? AND NOT lobby=-1", [Date.now(),username], (result,err)=>{
                 if(err){
                     //not now
@@ -75,11 +75,22 @@ http.createServer((req,res)=>{
                 });
 
             });
-        }
+        
+
+
+
+
+
+
+
+
+
+
+
         
         
         //when the user picks up another user from the lobby to initiate a game.
-        else if(path.startsWith("/start_game")){
+    }else if(path.startsWith("/start_game")){
             let partner = q.query.partner;
             if(!partner){
                 return;
@@ -112,7 +123,6 @@ http.createServer((req,res)=>{
         
             });
 
-        }
         
         
         
@@ -125,7 +135,8 @@ http.createServer((req,res)=>{
         
         
         
-        else if(path.startsWith("/leave_game")){
+        
+        }else if(path.startsWith("/leave_game")){
             //how to find my partner ??
             //go over all games that I am either player1 or player2.
             //from those games, if I am i.e player1, then player2 is my partner.
@@ -180,7 +191,6 @@ http.createServer((req,res)=>{
                 }
             });
             
-        }
         
         
         
@@ -190,7 +200,8 @@ http.createServer((req,res)=>{
         
         
         
-        else if(path.startsWith('/get_game_id')){
+        
+        }else if(path.startsWith('/get_game_id')){
                 st.query('SELECT id, player01, player02 FROM games WHERE (player01=? OR player02=?) AND active=1', [username, username], (result,err)=>{
                     if(err){
                         res.end('');
@@ -210,13 +221,12 @@ http.createServer((req,res)=>{
                         res.end("-1");
                     }
                 });
-            }
             
-            else if(path.startsWith('/get_game_status')){
+            
+            }else if(path.startsWith('/get_game_status')){
                 let gameId = q.query.id;
-                if(!gameId) 
-                {
-                return;
+                if(!gameId) {
+                    console.log(gameId); return;
                 }
                 try {
                     // Parse the request body
@@ -225,7 +235,8 @@ http.createServer((req,res)=>{
                         body.push(chunk);
                     }).on('end', () => {
                         body = Buffer.concat(body).toString();
-                        const handle = JSON.parse(body)
+                        console.log(gameId);
+                        body = JSON.parse(body);
                         // console.log(body);
                         // console.log("dealer: "+ body.dealerHand);
                         // console.log("player01: "+ body.player01Hand);
@@ -239,14 +250,19 @@ http.createServer((req,res)=>{
                                     res.end("");
                                     return;
                                 }
+
+                                console.log("test query...",body);
                             });
                         }else{
                             // Second query for only 2 players
+                            console.log("body: ",body);
                             st.query('UPDATE games SET player01_hand=?, player02_hand=? WHERE id=? AND (player01=? OR player02=?)',[body.player01Hand, body.player02Hand, gameId, username, username], (result, err)=>{
                                 if(err){
                                     res.end("");
                                     return;
                                 }
+                                console.log(body);
+                                console.log(result);
                                 if (result.length == 1) {
                                     let gameStatus = {
                                         id: gameId,
@@ -254,6 +270,7 @@ http.createServer((req,res)=>{
                                         player02: result[0].player02,
                                         active: result[0].active[0] == 1,
                                     };
+                                    
                                     
                                     res.writeHead(200, { 'Content-Type': 'application/json' });
                                     res.end(JSON.stringify(gameStatus));
@@ -266,7 +283,7 @@ http.createServer((req,res)=>{
                     res.writeHead(500, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ error: "server error" }));
                 }
-             }
+             
             
 
 
@@ -275,11 +292,8 @@ http.createServer((req,res)=>{
 
 
 
-
-
-
             
-            /*else if (path.startsWith("/player_action")) {
+            }else if (path.startsWith("/player_action")) {
                 let action = q.query.action;
                 let gameId = q.query.game_id;
                 if (!action || !gameId) {
@@ -288,7 +302,7 @@ http.createServer((req,res)=>{
                     return;
                 }
             
-                // Query the game state from the database
+                // query the game state from the database
                 st.query("SELECT * FROM games WHERE id=?", [gameId], (result, err) => {
                     if (err || result.length == 0) {
                         res.writeHead(400, {"Content-Type": "text/plain"});
@@ -297,7 +311,7 @@ http.createServer((req,res)=>{
                     }
             
                 });
-            }*/
+            }
     } else {//server static files
         st.serveStaticFile(path, res);
     }
