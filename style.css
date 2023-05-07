@@ -36,6 +36,6 @@ h1, h2{
     width: 600px;
 }
 
-#player1, #player2{
-
-}
+.hidden-card {
+    visibility: hidden;
+  }

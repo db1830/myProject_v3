@@ -92,6 +92,7 @@ http.createServer((req,res)=>{
         //when the user picks up another user from the lobby to initiate a game.
     }else if(path.startsWith("/start_game")){
             let partner = q.query.partner;
+           
             if(!partner){
                 return;
             }
@@ -102,20 +103,32 @@ http.createServer((req,res)=>{
                     return;
                 }
                 if(result.affectedRows == 2){
-                    st.query("INSERT INTO games(player01,player02) VALUES (?,?)", [username, partner], (result, err)=>{
-                        console.log("result2", result,err)
+                
+                    let body = [];
+                    req.on('data', chunk => {
+                        body.push(chunk);
+                    }).on('end', () => {
+                        body = Buffer.concat(body).toString();
+                        body = JSON.parse(body);
 
+                        const dealerHand = JSON.stringify(body.dealerHand);
+                        const player01Hand = JSON.stringify(body.player01Hand);
+                        const player02Hand = JSON.stringify(body.player02Hand);
+                        const dealerScore = JSON.stringify(body.dealerScore)
+                    st.query("INSERT INTO games(player01,player02, dealer_hand, player01_hand, player02_hand, dealer_score) VALUES (?,?,?,?,?,?)", [username, partner, dealerHand, player01Hand, player02Hand, dealerScore], (result, err)=>{
                         if(err){
                             //not now
                             res.writeHead(500, {'Content-Type':'text/plain'});
-                            res.end("error:" + err.toString());
+                            res.end("error");
                             
                         }
 
-                            res.writeHead(200, {'Content-Type':'text/plain'});
-                            res.end("ok");
+
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify("ok"));
                             
                     });
+                });  
                 }else{
                     res.writeHead(200, {'Content-Type':'text/plain'});
                     res.end("error");
@@ -130,23 +143,24 @@ http.createServer((req,res)=>{
         
         
         
-        
-        
-        
-        
-        
-        
+            
+            
+            
+            
+            
         }else if(path.startsWith("/leave_game")){
             //how to find my partner ??
             //go over all games that I am either player1 or player2.
             //from those games, if I am i.e player1, then player2 is my partner.
             //if I am player2, then my partner is player1.
+            
             st.query("SELECT id,player01,player02 FROM games WHERE (player01=? OR player02=?) AND active=1",[username, username], (result, err)=>{
                 if(err){
                     //not now
 
                     return;
                 }
+                console.log(result);
                 if(result.length >= 1){
                     let gameId = result[0].id;
                     let partner;
@@ -161,7 +175,7 @@ http.createServer((req,res)=>{
                         if(err){
                             //not now
         
-                            return;
+                             return;
                         }
                         if(result.affectedRows == 1){
                             st.query("UPDATE users SET lobby=0 WHERE username IN (?,?)",[username, partner], (result,err)=>{
@@ -202,116 +216,180 @@ http.createServer((req,res)=>{
         
         
         }else if(path.startsWith('/get_game_id')){
-                st.query('SELECT id, player01, player02 FROM games WHERE (player01=? OR player02=?) AND active=1', [username, username], (result,err)=>{
+                st.query('SELECT * FROM games WHERE (player01=? OR player02=?) AND active=1', [username, username], (result,err)=>{
                     if(err){
                         res.end('');
                         return;
                     }
                     if(result.length >= 1){
-                    //    let gameId = result[0].id;
-                       let gameInfo = {
-                        id: result[0].id,
-                        player01: result[0].player01,
-                        player02: result[0].player02,
-                    };
-                       res.writeHead(200, { 'Content-Type': 'application/json' });
-                       res.end(JSON.stringify(gameInfo));
+                        console.log(result);
+                            let gameInfo = {
+                                id: result[0].id,
+                                player: result[0].player01,
+                                dealer_hand: result[0].dealer_hand,
+                                player01Hand:  result[0].player01_hand,
+                                partner: result[0].player02,
+                                player02Hand: result[0].player02_hand,
+                                dealerScore: result[0].dealer_score
+
+                            };
+                               res.writeHead(200, { 'Content-Type': 'application/json' });
+                               res.end(JSON.stringify(gameInfo));
+                    
                     }else{
                         res.writeHead(200, { 'Content-Type': 'text/plain' });
                         res.end("-1");
                     }
                 });
             
+
+
+
+
+
+
+                
             
-            }else if(path.startsWith('/get_game_status')){
+            }else if(path.startsWith('/update_hands')){
                 let gameId = q.query.id;
                 if(!gameId) {
-                    console.log(gameId); return;
+                    return;
                 }
-                try {
+                try{
                     // Parse the request body
                     let body = [];
                     req.on('data', chunk => {
                         body.push(chunk);
                     }).on('end', () => {
                         body = Buffer.concat(body).toString();
-                        console.log(gameId);
                         body = JSON.parse(body);
-                        // console.log(body);
-                        // console.log("dealer: "+ body.dealerHand);
-                        // console.log("player01: "+ body.player01Hand);
-                        // console.log("player01 from handle",handle.player01Hand)
-                        // console.log("player02: w"+ body.player02Hand);
-                        
-                        // First query for init time (dealer and two players)
-                        if(body.dealerHand){
-                            st.query('UPDATE games SET dealer_hand=?, player01_hand=?, player02_hand=? WHERE id=? AND (player01=? OR player02=?)',[body.dealerHand, body.player01Hand, body.player02Hand, gameId, username, username], (result, err)=>{
+
+                            const player01Hand= JSON.stringify(body.player01Hand);
+                            const player02Hand= JSON.stringify(body.player02Hand);
+
+                            // Second query for only 2 players
+                            st.query(`UPDATE games SET player01_hand='${player01Hand}', player02_hand='${player02Hand}' WHERE id = ${gameId}`, (result, err)=>{
                                 if(err){
-                                    res.end("");
+                                    // res.end("");
+                                    
                                     return;
                                 }
 
-                                console.log("test query...",body);
-                            });
-                        }else{
-                            // Second query for only 2 players
-                            console.log("body: ",body);
-                            st.query('UPDATE games SET player01_hand=?, player02_hand=? WHERE id=? AND (player01=? OR player02=?)',[body.player01Hand, body.player02Hand, gameId, username, username], (result, err)=>{
-                                if(err){
-                                    res.end("");
-                                    return;
-                                }
-                                console.log(body);
-                                console.log(result);
                                 if (result.length == 1) {
                                     let gameStatus = {
                                         id: gameId,
                                         player01: result[0].player01,
                                         player02: result[0].player02,
                                         active: result[0].active[0] == 1,
+                                        dealer_hand: result[0].dealer_hand,
+                                        player01_hand: result[0].player01_hand, 
+                                        player02_hand: result[0].player02_hand
                                     };
-                                    
-                                    
+                                    console.log("gamestatus: ",gameStatus);
                                     res.writeHead(200, { 'Content-Type': 'application/json' });
                                     res.end(JSON.stringify(gameStatus));
                                 }
                             });
-                        }  
+                        // }  
                     }); 
                 } catch(error){
                     console.error("Error processing API request: ", error);
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: "server error" }));
-                }
-             
-            
-
-
-
-
-
-
-
-            
-            }else if (path.startsWith("/player_action")) {
-                let action = q.query.action;
-                let gameId = q.query.game_id;
-                if (!action || !gameId) {
-                    res.writeHead(400, {"Content-Type": "text/plain"});
-                    res.end("Invalid action or game ID");
                     return;
+                    // res.writeHead(500, { 'Content-Type': 'application/json' });
+                    // res.end(JSON.stringify({ error: "server error" }));
                 }
+             }
             
-                // query the game state from the database
-                st.query("SELECT * FROM games WHERE id=?", [gameId], (result, err) => {
-                    if (err || result.length == 0) {
-                        res.writeHead(400, {"Content-Type": "text/plain"});
-                        res.end("Invalid game ID");
+
+
+
+
+
+
+
+
+
+
+         else if(path.startsWith("/update_winner")){
+            let gameId = q.query.id;
+            if(!gameId) {
+                return;
+            }
+            try{
+                // Parse the request body
+                let body = [];
+                req.on('data', chunk => {
+                    body.push(chunk);
+                }).on('end', () => {
+                    body = Buffer.concat(body).toString();
+                    body = JSON.parse(body);
+                    const winner= JSON.stringify(body.winner);
+
+                        // Second query for only 2 players
+                        st.query(`UPDATE games SET winner='${winner}' WHERE id = ${gameId}`, (result, err)=>{
+                            if(err){                                
+                                return;
+                            }
+
+                            if (result.length == 1) {
+                     
+                                res.writeHead(200, { 'Content-Type': 'application/json' });
+                                res.end('Sueccess!');
+                            }
+                        });
+                    // }  
+                }); 
+            } catch(error){
+                console.error("Error processing API request: ", error);
+                return;
+                // res.writeHead(500, { 'Content-Type': 'application/json' });
+                // res.end(JSON.stringify({ error: "server error" }));
+            } 
+
+        }
+        else if (path.startsWith("/game_check")) {
+            let gameId = q.query.id;
+            if (!gameId) {
+                return;
+            }
+            try{
+                st.query('SELECT * FROM games WHERE id=?', [gameId], (result, err) => {
+                    if (err) {
                         return;
                     }
-            
+                    console.log("array 384: ",result);
+                    if (result.length > 0 ) {
+                        const gameStatus = {
+                            player01: result[0].player01,
+                            player02: result[0].player02,
+                            active: result[0].active[0] == '01',     
+                            dealer_hand: result[0].dealer_hand,
+                            player01_hand: result[0].player01_hand, 
+                            player02_hand: result[0].player02_hand,
+                            winner: result[0].winner,
+                            dealerScore: result[0].dealer_score
+                        };
+    
+                        console.log("gamechack!: ",gameStatus ,result.length > 0  );
+    
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(gameStatus));
+                    }else{
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end('check');  
+                    }
+             
                 });
+
+            }catch(err){
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(err);  
             }
+            
+        }
+
+            
+            
     } else {//server static files
         st.serveStaticFile(path, res);
     }

@@ -16,7 +16,7 @@ function sendHttpGetRequest(url, callback){
 // and 'send()' passes the 'GET' type request
 
 
-function sendHttpPostRequest(body,gameId, callback){
+function updateHandsPostRequest(body,gameId, callback){
     let httpRequest = new XMLHttpRequest();
     httpRequest.onreadystatechange = ()=>{
         if(httpRequest.readyState == 4){
@@ -25,7 +25,37 @@ function sendHttpPostRequest(body,gameId, callback){
              }   
         } 
      };
-     httpRequest.open("POST", 'api/get_game_status?username='+username+'&password='+password+'&id='+gameId , true);
+     httpRequest.open("POST", 'api/update_hands?username='+username+'&password='+password+'&id='+gameId , true);
+     httpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+     httpRequest.send(JSON.stringify(body));
+     
+}
+
+function updateWinnerRequest(gameInfo, callback){
+    let httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = ()=>{
+        if(httpRequest.readyState == 4){
+             if(httpRequest.status == 200){
+                 callback(httpRequest.responseText);
+             }   
+        } 
+     };
+     httpRequest.open("POST", 'api/update_winner?username='+username+'&password='+password+'&id='+gameInfo.gameId , true);
+     httpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+     httpRequest.send(JSON.stringify(gameInfo));
+     
+}
+
+function startGamePostRequest(body,username,partner, callback){
+    let httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = ()=>{
+        if(httpRequest.readyState == 4){
+             if(httpRequest.status == 200){
+                 callback(httpRequest.responseText);
+             }   
+        } 
+     };
+     httpRequest.open("POST", 'api/start_game?username='+username+'&password='+password+'&partner='+partner , true);
      httpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
      httpRequest.send(JSON.stringify(body));
      

@@ -64,3 +64,40 @@ To Do List:
 2. use try and catch for api requests.
 
 3. clean the code!
+
+
+To Do:
+
+1. date.now() - first!
+
+2. determine the winners in the game by socre points (at least 17 points each player).
+
+3. a function for a render between the players in different browsers(messages, shwoing and hidding cards).
+
+4.useage in localstorage
+
+
+
+To Do:
+
+1. add a new column in game's table (dealer_score) and add it to the route 'get game id'
+
+2. edit the dealer cards when it fetch from db and given array cards from back (example in gameplay function)
+
+3. finish showPlayercards, like dealerCard mission above, use For loop to show the cards with the right element div's for each one of the players (for example look on gamePlay function)
+
+4. hide the cards  for relevent player, and show the cards at the end of the game or some of them win!.
+
+
+
+--------------------------------------------------BUGS----------------------------------------------------------
+
+
+1. show/hidden for each players (now every player can see the other cards);
+2. reset parameters after leaving the game .
+3.preserve game  after refresh (using localstorage).
+4. style the front.
+
+
+
+

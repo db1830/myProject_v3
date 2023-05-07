@@ -8,7 +8,8 @@ let gameId, lblGameId;
 let gameStatus;
 let playerOne;
 let playerTwo;
-
+let player01Hand=[];
+let player02Hand=[];
 
 // initialize the game 
 function init() {
@@ -61,7 +62,7 @@ function removeAllChildNodes(node) {
       let existsInList = false;
   
       for (let i = 0; i < usersInLobby.length; i++) {
-        if (usersInLobby[i].username == username) {
+          if (usersInLobby[i].username == username) {
           existsInList = true;
           continue;
         }
@@ -72,7 +73,13 @@ function removeAllChildNodes(node) {
   
         p.onclick = (event) => {
           const partner = event.target.innerHTML;
-          sendHttpGetRequest('api/start_game?username=' + username + '&password=' + password + '&partner=' + partner, (response) => {
+          const dealerSetting = generateDealerCards();
+          player01Hand = generatePlayerCards();
+          player02Hand = generatePlayerCards();
+          const dealerHand = dealerSetting.arrCards;
+          const dealerScore = dealerSetting.dlrSum;
+          startGamePostRequest({ dealerHand, player01Hand, player02Hand, dealerScore },username, partner, (response) => {
+
             if (response == 'error') {
               alert('Error, please try again.');
             }
@@ -81,10 +88,12 @@ function removeAllChildNodes(node) {
       }
   
       if (existsInList) {
-        setTimeout(getLobby, 800);
+        setTimeout(getLobby, 1000);
       } else {
         getGameId();
-      }
+
+      } 
+      
     });
   }
   
@@ -93,16 +102,56 @@ function removeAllChildNodes(node) {
       if(response){
       const res = JSON.parse(response);
       
-      gameId=res.id;
+      gameId = res.id;
       lblGameId.innerHTML = 'Your game id is: ' + res.id;
-      playerOne.innerHTML = "player01: " + res.player01;
-      playerTwo.innerHTML = "player02: " + res.player02;
+
+      playerOne.innerHTML = "player01: " + res.player;
+      playerTwo.innerHTML = "player02: " + res.partner;
+      showPlayerCards(JSON.parse(res.player01Hand),1);
+      showPlayerCards(JSON.parse(res.player02Hand));
+      showDealerCards(JSON.parse(res.dealer_hand));
+      dlrSum = JSON.parse(res.dealerScore);
+
       show(divGame);
-      // getGameStatus()
-      gamePlay();
+      setTimeout(gameCheck, 1000);
       }
       
     });
+
+   
+  }
+
+  // rendering  the player cards when it updated every change 
+  function renderCards(gameInfo){
+      if(gameInfo){
+
+      const player1CardLen = JSON.parse(gameInfo.player01_hand).length;
+      const player2CardLen = JSON.parse(gameInfo.player02_hand).length;
+
+     console.log(player1CardLen,player2CardLen);
+      if(player1CardLen > player01Hand.length){
+        const newCards = JSON.parse(gameInfo.player01_hand).filter((item, index)=> item === player01Hand[index]);
+        showPlayerCards(newCards,1);
+        addCard(newCards,1)
+        
+        player01Hand.concat(newCards)
+      }
+
+      if(player2CardLen > player02Hand.length){
+        const newCards = JSON.parse(gameInfo.player02_hand).filter((item, index)=> item === player02Hand[index]);
+        showPlayerCards(newCards);
+        player02Hand.concat(newCards)
+      }
+      if(gameInfo.winner){
+      showDealerCards(JSON.parse(gameInfo.dealer_hand));
+      dlrSum = gameInfo.dealerScore;
+      document.getElementById("hidden").src = "./img_cards/" + hidden + ".png";
+      document.getElementById("pResults").innerText = gameInfo.winner;
+
+      }
+    }
+    setTimeout(gameCheck,1000);
+
   }
   
 
@@ -184,26 +233,29 @@ function btnLeaveGameClicked(){
   });
 }
 
+ 
 
+function gameCheck(){
+  sendHttpGetRequest('api/game_check?username='+username+'&password='+password+'&id='+gameId , (response)=>{
+    let parseResponse = JSON.parse(response);
+    if(parseResponse.active){
 
-// function getGameStatus(){
-//   sendHttpGetRequest('api/get_game_status?username='+username+'&password='+password+'&id='+gameId , (response)=>{
-//     gameStatus = JSON.parse(response);
-//     if(gameStatus.active){
-
-
-//       setTimeout(getGameStatus, 600);
-//         return;
-        
-        
-//     }else{
-//       show(divLobby);
-//       getLobby();
-//     }
-    
-//   });
-  
-// }
+        const gameStatus = {
+          player01: parseResponse.player01,
+          player02: parseResponse.player02,     
+          dealer_hand: parseResponse.dealer_hand,
+          player01_hand: parseResponse.player01_hand, 
+          player02_hand: parseResponse.player02_hand,
+          winner: parseResponse.winner,
+          dealerScore: parseResponse.dealer_score
+      };
+      renderCards(gameStatus)
+    }else{
+      show(divLobby);
+      getLobby();
+    }
+  });
+}
 
 
 
