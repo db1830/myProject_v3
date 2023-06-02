@@ -35,7 +35,3 @@ h1, h2{
 .players-wrap{
     width: 600px;
 }
-
-.hidden-card {
-    visibility: hidden;
-  }

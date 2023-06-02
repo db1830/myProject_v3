@@ -93,10 +93,52 @@ To Do:
 --------------------------------------------------BUGS----------------------------------------------------------
 
 
-1. show/hidden for each players (now every player can see the other cards);
+1. show/hidden for each players (now every player can see the other cards); V
 2. reset parameters after leaving the game .
 3.preserve game  after refresh (using localstorage).
 4. style the front.
+
+
+
+To Do: 
+
+1.create a new field in db, that field going to save the last username that played (last_action) and that will be the indicates for queue in front.
+and needed to be implement in the cardHandler(btnHitClicked) also parameter. and add it to start_game route on the backend. do not forget: implement on update_hands.
+
+
+
+* Use  showPlayerCards function when player press stand button and where renderCards (where you set the winner name).
+* fix winner check logic in btnStand (the conditons are wrong)
+* set the global veriables when user leave the game or someone won!
+
+
+
+
+
+
+To do:
+
+* testing for the winner sinario (when of players win's so it need to be reseted globale parameters and needed to out to lobby),also
+  need to test leave sinario.
+
+* show a message to both players before leaving to the lobby.
+
+* fix the override of cards.
+
+* testing a new game.
+
+
+
+
+
+------------------------------------Bugs--------------------------------
+
+* The miscalculation view of one of the players after clicking on "stand" button
+* bugs appears when users want's to play second game, the cards do not function well(render & calculation) 
+* btnstand function conditons needed to be completed at least two more conditons that related to dealer wins!
+
+
+
 
 
 

@@ -115,7 +115,7 @@ http.createServer((req,res)=>{
                         const player01Hand = JSON.stringify(body.player01Hand);
                         const player02Hand = JSON.stringify(body.player02Hand);
                         const dealerScore = JSON.stringify(body.dealerScore)
-                    st.query("INSERT INTO games(player01,player02, dealer_hand, player01_hand, player02_hand, dealer_score) VALUES (?,?,?,?,?,?)", [username, partner, dealerHand, player01Hand, player02Hand, dealerScore], (result, err)=>{
+                    st.query("INSERT INTO games(player01,player02, dealer_hand, player01_hand, player02_hand, dealer_score, last_action) VALUES (?,?,?,?,?,?,?)", [username, partner, dealerHand, player01Hand, player02Hand, dealerScore, partner], (result, err)=>{
                         if(err){
                             //not now
                             res.writeHead(500, {'Content-Type':'text/plain'});
@@ -136,10 +136,6 @@ http.createServer((req,res)=>{
         
             });
 
-        
-        
-        
-        
         
         
         
@@ -171,7 +167,7 @@ http.createServer((req,res)=>{
                     }
 
                     
-                    st.query("UPDATE games SET active=0 WHERE id=? AND active=1",[gameId],(result,err)=>{
+                    st.query("UPDATE games SET active=0 WHERE id=? AND active = 1",[gameId],(result,err)=>{
                         if(err){
                             //not now
         
@@ -268,7 +264,7 @@ http.createServer((req,res)=>{
                             const player02Hand= JSON.stringify(body.player02Hand);
 
                             // Second query for only 2 players
-                            st.query(`UPDATE games SET player01_hand='${player01Hand}', player02_hand='${player02Hand}' WHERE id = ${gameId}`, (result, err)=>{
+                            st.query(`UPDATE games SET player01_hand='${player01Hand}', player02_hand='${player02Hand}',last_action='${username}' WHERE id = ${gameId}`, (result, err)=>{
                                 if(err){
                                     // res.end("");
                                     
@@ -306,10 +302,6 @@ http.createServer((req,res)=>{
 
 
 
-
-
-
-
          else if(path.startsWith("/update_winner")){
             let gameId = q.query.id;
             if(!gameId) {
@@ -324,7 +316,6 @@ http.createServer((req,res)=>{
                     body = Buffer.concat(body).toString();
                     body = JSON.parse(body);
                     const winner= JSON.stringify(body.winner);
-
                         // Second query for only 2 players
                         st.query(`UPDATE games SET winner='${winner}' WHERE id = ${gameId}`, (result, err)=>{
                             if(err){                                
@@ -357,7 +348,6 @@ http.createServer((req,res)=>{
                     if (err) {
                         return;
                     }
-                    console.log("array 384: ",result);
                     if (result.length > 0 ) {
                         const gameStatus = {
                             player01: result[0].player01,
@@ -367,7 +357,8 @@ http.createServer((req,res)=>{
                             player01_hand: result[0].player01_hand, 
                             player02_hand: result[0].player02_hand,
                             winner: result[0].winner,
-                            dealerScore: result[0].dealer_score
+                            dealerScore: result[0].dealer_score,
+                            last_action: result[0].last_action
                         };
     
                         console.log("gamechack!: ",gameStatus ,result.length > 0  );
