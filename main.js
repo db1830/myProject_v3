@@ -156,7 +156,6 @@ http.createServer((req,res)=>{
 
                     return;
                 }
-                console.log(result);
                 if(result.length >= 1){
                     let gameId = result[0].id;
                     let partner;
@@ -218,7 +217,6 @@ http.createServer((req,res)=>{
                         return;
                     }
                     if(result.length >= 1){
-                        console.log(result);
                             let gameInfo = {
                                 id: result[0].id,
                                 player: result[0].player01,
@@ -281,7 +279,6 @@ http.createServer((req,res)=>{
                                         player01_hand: result[0].player01_hand, 
                                         player02_hand: result[0].player02_hand
                                     };
-                                    console.log("gamestatus: ",gameStatus);
                                     res.writeHead(200, { 'Content-Type': 'application/json' });
                                     res.end(JSON.stringify(gameStatus));
                                 }
@@ -360,9 +357,6 @@ http.createServer((req,res)=>{
                             dealerScore: result[0].dealer_score,
                             last_action: result[0].last_action
                         };
-    
-                        console.log("gamechack!: ",gameStatus ,result.length > 0  );
-    
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(gameStatus));
                     }else{

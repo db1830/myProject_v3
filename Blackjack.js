@@ -2,12 +2,15 @@
 let hidden;
 let dlrSum = 0, p01Sum = 0, p02Sum = 0;
 let dlrAceCount = 0, p01AceCount = 0, p02AceCount = 0;
+let initCounter=0;
 
 const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const types = ['C', 'D', 'H', 'S'];
 const deck = [];
 
 function initialize() {
+    console.log(initCounter,deck, 'init' );
+    initCounter++;
     getDeck();
     shuffle();
     
@@ -15,6 +18,7 @@ function initialize() {
 
 
 function getDeck() {
+
     for (let i = 0; i < types.length; i++) {
         for (let j = 0; j < values.length; j++) {
             deck.push(values[j] + "-" + types[i]);
@@ -90,6 +94,7 @@ function showPlayerCards(playerCards, playerId, hideCards = false) {
         let cardImg = document.createElement("img");
         if(hideCards){
             cardImg.src = "./img_cards/BACK.png";
+            
         }else{
             cardImg.src = "./img_cards/" + playerCards[i] + ".png";
         }
@@ -121,6 +126,7 @@ function cardHandler(player01Hand, player02Hand, gameIdOfBj, username, player) {
         p02AceCount += checkingAce(card);
         player02Hand.push(card);
         reducedAce(p02Sum, p02AceCount);
+
     }    
     updateHandsPostRequest({ player01Hand, player02Hand }, gameIdOfBj, username);
 }
@@ -142,45 +148,71 @@ function btnStandClicked() {
     // Show all player cards without hiding
     showPlayerCards(player01Hand, 1, false);
     showPlayerCards(player02Hand, 2, false);
-    
+
 
     document.getElementById("hidden").src = "./img_cards/" + hidden + ".png";
 
     let message = "";
+
+if (dlrSum > 21) {
+    message = "Dealer busts. Both players win!";
+} else {
+    if (p01Sum > 21) {
+        message = "Player01 busts. ";
+    } else if (p01Sum > dlrSum) {
+        message = "Player01 wins! ";
+    } else if (p01Sum == dlrSum) {
+        message = "Tie between Player01 and Dealer. ";
+    } else {
+        message = "Dealer wins against Player01. ";
+    }
+
+    if (p02Sum > 21) {
+        message = "Player02 busts. ";
+    } else if (p02Sum > dlrSum) {
+        message = "Player02 wins!";
+    } else if (p02Sum == dlrSum) {
+        message = "Tie between Player02 and Dealer.";
+    } else {
+        message = "Dealer wins against Player02.";
+    }
+}
+
+    // let message = "";
    
-    if(dlrSum > 21){
-        message = "Both Players Win!";
-    }else if(p01Sum == dlrSum && p02Sum == dlrSum){
-        message = "Tie!";
-    }else if(p01Sum == dlrSum && p02Sum < dlrSum){
-        message = "Tie between Player01 and Dealer!";
-    }else if(p02Sum == dlrSum && p01Sum < dlrSum){
-        message = "Tie between Player02 and Dealer!";
-    }
-    else if(p02Sum == dlrSum && p01Sum > dlrSum){
-        message = "Player01 Wins!";
-    }
-    else if(p01Sum == dlrSum && p02Sum > dlrSum){
-        message = "Player02 Wins!";
-    }
-    else if(p01Sum > dlrSum && p01Sum > p02Sum){
-        message = "Player01 Wins!";
-    }
-    else if(p02Sum > dlrSum && p02Sum > p01Sum){
-        message = "Player02 Wins!";
-    }
-    else if(p01Sum == p02Sum && p01Sum > dlrSum){
-        message = "Tie!";
-    }
-    else if(dlrSum > p01Sum && dlrSum > p02Sum){
-        message = "Dealer Wins!";
-    }
-    else if(p01Sum > p02Sum){
-        message = "Player01 Wins!";
-    }
-    else if(p02Sum > p01Sum){
-        message = "Player02 Wins!";
-    }
+    // if(dlrSum > 21){
+    //     message = "Both Players Win!";
+    // }else if(p01Sum == dlrSum && p02Sum == dlrSum){
+    //     message = "Tie!";
+    // }else if(p01Sum == dlrSum && p02Sum < dlrSum){
+    //     message = "Tie between Player01 and Dealer!";
+    // }else if(p02Sum == dlrSum && p01Sum < dlrSum){
+    //     message = "Tie between Player02 and Dealer!";
+    // }
+    // else if(p02Sum == dlrSum && p01Sum > dlrSum){
+    //     message = "Player01 Wins!";
+    // }
+    // else if(p01Sum == dlrSum && p02Sum > dlrSum){
+    //     message = "Player02 Wins!";
+    // }
+    // else if(p01Sum > dlrSum && p01Sum > p02Sum){
+    //     message = "Player01 Wins!";
+    // }
+    // else if(p02Sum > dlrSum && p02Sum > p01Sum){
+    //     message = "Player02 Wins!";
+    // }
+    // else if(p01Sum == p02Sum && p01Sum > dlrSum){
+    //     message = "Tie!";
+    // }
+    // else if(dlrSum > p01Sum && dlrSum > p02Sum){
+    //     message = "Dealer Wins!";
+    // }
+    // else if(p01Sum > p02Sum){
+    //     message = "Player01 Wins!";
+    // }
+    // else if(p02Sum > p01Sum){
+    //     message = "Player02 Wins!";
+    // }
 
     setWinner(message);
     showResults(dlrSum);
