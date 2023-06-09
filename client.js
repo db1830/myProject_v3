@@ -15,6 +15,7 @@ let btnHit;
 let hasWinner = false;
 
 
+
 // initialize the game 
 function init() {
   divLogin = document.getElementById('divLogin');
@@ -176,7 +177,7 @@ function renderCards(gameInfo) {
         alert("End of game, you are going back to lobby!");
         sendHttpGetRequest('/api/leave_game?username=' + username + '&password=' + password, (response) => {
           if (response == "ok") {
-
+            
           }
         });
 

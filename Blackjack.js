@@ -9,8 +9,6 @@ const types = ['C', 'D', 'H', 'S'];
 const deck = [];
 
 function initialize() {
-    console.log(initCounter,deck, 'init' );
-    initCounter++;
     getDeck();
     shuffle();
     
